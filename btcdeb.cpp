@@ -17,8 +17,8 @@
 #include <version.h>
 
 bool quiet = false;
-bool pipe_in = false;  // xxx | btcdeb
-bool pipe_out = false; // btcdeb xxx > file
+bool pipe_in = false;  // xxx | dashdeb
+bool pipe_out = false; // dashdeb xxx > file
 bool verbose = false;
 
 struct script_verify_flag {
@@ -145,23 +145,23 @@ int main(int argc, char* const* argv)
             "as well as (SegWit only) every amount for the inputs, or provide (one or more) signature:pubkey pairs using --pretend-valid\n");
         fprintf(stderr, "E.g. if a SegWit transaction abc123... has 2 inputs of 0.1 btc and 0.002 btc, you would do tx=0.1,0.002:abc123...\n");
         fprintf(stderr, "You do not need the amounts for non-SegWit transactions\n");
-        fprintf(stderr, "By providing a txin as well as a tx and no script or stack, btcdeb will attempt to set up a debug session for the verification of the given input by pulling the appropriate values out of the respective transactions. you do not need amounts for --tx in this case\n");
+        fprintf(stderr, "By providing a txin as well as a tx and no script or stack, dashdeb will attempt to set up a debug session for the verification of the given input by pulling the appropriate values out of the respective transactions. you do not need amounts for --tx in this case\n");
         fprintf(stderr, "The --allow-disabled-opcodes flag enables experimental support for OP_CAT, OP_2MUL, etc (disabled in Bitcoin)\n");
         fprintf(stderr, "You can modify verification flags using the --modify-flags command. separate flags using comma (,). prefix with + to enable, - to disable. e.g. --modify-flags=\"-NULLDUMMY,-MINIMALIF\"\n");
         fprintf(stderr, "You can set the environment variables DEBUG_SIGHASH, DEBUG_SIGNING, and DEBUG_SEGWIT to increase verbosity for the respective areas.\n");
         fprintf(stderr, "The standard (enabled by default) flags can be reviewed by typing %s --default-flags or %s -d", argv[0], argv[0]);
-        fprintf(stderr, "The --verbose flag will turn btcdeb into a helpful hintful chatter-box in various situations.\n");
+        fprintf(stderr, "The --verbose flag will turn dashdeb into a helpful hintful chatter-box in various situations.\n");
         return 0;
     } else if (ca.m.count('d')) {
         printf("The standard (enabled by default) flags are:\n・ %s\n", svf_string(STANDARD_SCRIPT_VERIFY_FLAGS, "\n・ ").c_str());
         return 0;
     } else if (ca.m.count('V')) {
-        printf("btcdeb (\"The Bitcoin Script Debugger\") " VERSION() "\n");
+        printf("dashdeb (\"The Bitcoin Script Debugger\") " VERSION() "\n");
         return 0;
     } else if (ca.m.count('X')) {
         process_datasets(ca.m, verbose);
     } else if (!quiet) {
-        printf("btcdeb " VERSION() " -- type `%s -h` for start up options\n", argv[0]);
+        printf("dashdeb " VERSION() " -- type `%s -h` for start up options\n", argv[0]);
     }
 
     if (!pipe_in) {
@@ -178,7 +178,7 @@ int main(int argc, char* const* argv)
         if (btc_enabled(btc_segwit_logf)) btc_logf(" segwit");
         if (btc_enabled(btc_taproot_logf)) btc_logf(" taproot");
         btc_logf("\n");
-        btc_logf("notice: btcdeb has gotten quieter; use --verbose if necessary (this message is temporary)\n");
+        btc_logf("notice: dashdeb has gotten quieter; use --verbose if necessary (this message is temporary)\n");
     }
 
     unsigned int flags = STANDARD_SCRIPT_VERIFY_FLAGS;
@@ -337,7 +337,7 @@ int main(int argc, char* const* argv)
         if (verbose) btc_logf(
             "*** note: there is a for-clarity preamble\n\n"
 
-            "This is a virtual script that btcdeb generates and presents to you so you can step through the validation process one step at a time. The input is simply the redeem script hash, whereas btcdeb presents it as a OP_DUP, OP_HASH160, <that hash>, OP_EQUALVERIFY script.\n"
+            "This is a virtual script that dashdeb generates and presents to you so you can step through the validation process one step at a time. The input is simply the redeem script hash, whereas dashdeb presents it as a OP_DUP, OP_HASH160, <that hash>, OP_EQUALVERIFY script.\n"
         ); else if (!quiet) btc_logf("note: there is a for-clarity preamble (use --verbose for details)\n");
     }
 
@@ -351,7 +351,7 @@ int main(int argc, char* const* argv)
         print_stack(env->stack, true);
         return 0;
     } else {
-        kerl_set_history_file(".btcdeb_history");
+        kerl_set_history_file(".dashdeb_history");
         kerl_set_repeat_on_empty(true);
         kerl_set_enable_sensitivity();
         kerl_set_comment_char('#');
@@ -371,7 +371,7 @@ int main(int argc, char* const* argv)
         if (env->curr_op_seq < count) {
             printf("%s\n", script_lines[env->curr_op_seq]);
         }
-        kerl_run("btcdeb> ");
+        kerl_run("dashdeb> ");
     }
 }
 

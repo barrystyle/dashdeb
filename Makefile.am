@@ -24,7 +24,7 @@ EXTRA_LIBRARIES += \
   $(LIBBITCOIN) \
   $(LIBKERL)
 
-bin_PROGRAMS = btcdeb btcc test-btcdeb
+bin_PROGRAMS = dashdeb btcc test-dashdeb
 noinst_PROGRAMS =
 
 # debugger #
@@ -118,19 +118,19 @@ libkerl_a_CPPFLAGS = $(AM_CPPFLAGS) -Ikerl
 libkerl_a_CFLAGS = -std=gnu99
 libkerl_a_SOURCES = kerl/kerl.c kerl/kerl.h
 
-# btcdeb binary #
-btcdeb_SOURCES = \
+# dashdeb binary #
+dashdeb_SOURCES = \
 	instance.h \
 	instance.cpp \
 	functions.h \
 	functions.cpp \
 	btcdeb.cpp \
 	cliargs.h
-btcdeb_CPPFLAGS = $(AM_CPPFLAGS)
-btcdeb_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-btcdeb_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_AP_LDFLAGS)
+dashdeb_CPPFLAGS = $(AM_CPPFLAGS)
+dashdeb_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+dashdeb_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_AP_LDFLAGS)
 
-btcdeb_LDADD = \
+dashdeb_LDADD = \
 	$(LIBBITCOIN_DEB) \
 	$(LIBBITCOIN) \
 	$(LIBSECP256K1) \
@@ -147,8 +147,8 @@ btcc_LDADD = \
 	$(LIBBITCOIN) \
 	$(LIBSECP256K1)
 
-# test-btcdeb binary #
-test_btcdeb_SOURCES = \
+# test-dashdeb binary #
+test_dashdeb_SOURCES = \
 	instance.h \
 	instance.cpp \
 	functions.h \
@@ -158,11 +158,11 @@ test_btcdeb_SOURCES = \
 	test/test-btcdeb.cpp \
 	test/utils.cpp \
 	test/value.cpp
-test_btcdeb_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-test_btcdeb_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-test_btcdeb_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_AP_LDFLAGS)
+test_dashdeb_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+test_dashdeb_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+test_dashdeb_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_AP_LDFLAGS)
 
-test_btcdeb_LDADD = \
+test_dashdeb_LDADD = \
 	$(LIBBITCOIN_DEB) \
 	$(LIBBITCOIN) \
 	$(LIBKERL) \
