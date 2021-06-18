@@ -1764,81 +1764,12 @@ bool SignatureHashSchnorr(uint256& hash_out, const ScriptExecutionData& execdata
 template <class T>
 uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache)
 {
-    btc_sign_logf("SignatureHash(nIn=%d, nHashType=%02x, amount=%lld)\n", nIn, nHashType, amount);
     assert(nIn < txTo.vin.size());
-
-    if (sigversion == SigVersion::WITNESS_V0) {
-        btc_sign_logf("- sigversion == SIGVERSION_WITNESS_V0\n");
-        uint256 hashPrevouts;
-        uint256 hashSequence;
-        uint256 hashOutputs;
-        const bool cacheready = cache && cache->m_bip143_segwit_ready;
-
-        if (!(nHashType & SIGHASH_ANYONECANPAY)) {
-            hashPrevouts = cacheready ? cache->hashPrevouts : SHA256Uint256(GetPrevoutsSHA256(txTo));
-            btc_sign_logf("  hashPrevouts = %s\n", hashPrevouts.ToString().c_str());
-        }
-
-        if (!(nHashType & SIGHASH_ANYONECANPAY) && (nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
-            hashSequence = cacheready ? cache->hashSequence : SHA256Uint256(GetSequencesSHA256(txTo));
-            btc_sign_logf("  hashSequence = %s\n", hashSequence.ToString().c_str());
-        }
-
-
-        if ((nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
-            hashOutputs = cacheready ? cache->hashOutputs : SHA256Uint256(GetOutputsSHA256(txTo));
-            btc_sign_logf("  hashOutputs [!single] = %s\n", hashOutputs.ToString().c_str());
-        } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nIn < txTo.vout.size()) {
-            CHashWriter ss(SER_GETHASH, 0);
-            ss << txTo.vout[nIn];
-            hashOutputs = ss.GetHash();
-            btc_sign_logf("  hashOutputs [single] = %s\n", hashOutputs.ToString().c_str());
-        }
-
-        CHashWriter::debug = btc_enabled(btc_sighash_logf);
-        CHashWriter ss(SER_GETHASH, 0);
-        // Version
-        btc_sign_logf("SERIALIZING:\n");
-        ss << txTo.nVersion;
-        btc_sign_logf(" << txTo.nVersion = %d\n", txTo.nVersion);
-        // Input prevouts/nSequence (none/all, depending on flags)
-        ss << hashPrevouts;
-        btc_sign_logf(" << hashPrevouts\n");
-        ss << hashSequence;
-        btc_sign_logf(" << hashSequence\n");
-        // The input being signed (replacing the scriptSig with scriptCode + amount)
-        // The prevout may already be contained in hashPrevout, and the nSequence
-        // may already be contain in hashSequence.
-        ss << txTo.vin[nIn].prevout;
-        btc_sign_logf(" << txTo.vin[nIn=%d].prevout = %s\n", nIn, txTo.vin[nIn].prevout.ToString().c_str());
-        ss << scriptCode;
-        btc_sign_logf(" << scriptCode\n");
-        ss << amount;
-        btc_sign_logf(" << amount = %" PRId64 "\n", amount);
-        ss << txTo.vin[nIn].nSequence;
-        btc_sign_logf(" << txTo.vin[nIn].nSequence = %u (0x%x)\n", txTo.vin[nIn].nSequence, txTo.vin[nIn].nSequence);
-        // Outputs (none/one/all, depending on flags)
-        ss << hashOutputs;
-        btc_sign_logf(" << hashOutputs\n");
-        // Locktime
-        ss << txTo.nLockTime;
-        btc_sign_logf(" << txTo.nLockTime = %d\n", txTo.nLockTime);
-        // Sighash type
-        ss << nHashType;
-        btc_sign_logf(" << nHashType = %02x\n", nHashType);
-        CHashWriter::debug = false;
-        uint256 sighash = ss.GetHash();
-        btc_sign_logf("RESULTING HASH = %s\n", sighash.ToString().c_str());
-        return sighash;
-    }
-
-    btc_sign_logf("- sigversion = SIGVERSION_BASE (non-segwit style)\n");
 
     // Check for invalid use of SIGHASH_SINGLE
     if ((nHashType & 0x1f) == SIGHASH_SINGLE) {
         if (nIn >= txTo.vout.size()) {
             //  nOut out of range
-            btc_sign_logf("  nIn >= txTo.vout.size() [nOut out of range]\n");
             return uint256::ONE;
         }
     }
@@ -1847,10 +1778,8 @@ uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn
     CTransactionSignatureSerializer<T> txTmp(txTo, scriptCode, nIn, nHashType);
 
     // Serialize and hash
-    CHashWriter::debug = btc_enabled(btc_sighash_logf);
     CHashWriter ss(SER_GETHASH, 0);
     ss << txTmp << nHashType;
-    CHashWriter::debug = false;
     return ss.GetHash();
 }
 
